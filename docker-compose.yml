@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  reverse_proxy:
+    container_name: traefik
+    image: traefik:v2.4
+    restart: always
+    command:
+      - --api.insecure=true 
+      # - --api.dashboard=true
+      - --providers.docker=true
+      # - --entrypoints.david_net.address=:80
+      # - --providers.docker.network=david_net
+    networks: 
+      - david_net
+    ports:
+      - 80:80
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # labels:
+      # - traefik.enable=true
+      # - traefik.http.routers.api.rule=Host(`monitor.localhost`)
+
+  whoami:
+    container_name: whoami
+    image: traefik/whoami
+    restart: always
+    networks: 
+      - david_net
+    labels:
+      # - traefik.enable=true
+      - traefik.http.routers.whoami.rule=Host(`whoami.localhost`)
+
+networks:
+  david_net:
+    name: david_net
+    driver: bridge
+  default:
+    external: true
+    name: david_net
