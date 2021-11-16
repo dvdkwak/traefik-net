@@ -9,10 +9,10 @@ services:
       - --api.insecure=true 
       - --api.dashboard=true
       - --providers.docker=true
-      - --providers.docker.network=web
+      - --providers.docker.network=${NETWORK_NAME}
       - --entrypoints.web.address=:80
     networks: 
-      - web
+      - ${NETWORK_NAME}
     ports:
       - 80:80
       - 8080:8080
@@ -21,8 +21,8 @@ services:
 
 networks:
   web:
-    name: web
+    name: ${NETWORK_NAME}
     driver: bridge
   default:
     external: true
-    name: web
+    name: ${NETWORK_NAME}
