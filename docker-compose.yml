@@ -1,31 +1,28 @@
-version: '3.5'
+version: '3.7'
 
 services:
-  reverse_proxy:
-    container_name: traefik
-    image: traefik:v2.4
+  traefik:
+    container_name: ${COMPOSE_PROJECT_NAME}_traefik
+    image: traefik:v2.5
     restart: always
     command:
       - --api.insecure=true 
-      # - --api.dashboard=true
+      - --api.dashboard=true
       - --providers.docker=true
-      # - --entrypoints.david_net.address=:80
-      # - --providers.docker.network=david_net
+      - --providers.docker.network=web
+      - --entrypoints.web.address=:80
     networks: 
-      - david_net
+      - web
     ports:
       - 80:80
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    # labels:
-      # - traefik.enable=true
-      # - traefik.http.routers.api.rule=Host(`monitor.localhost`)
 
 networks:
-  david_net:
-    name: david_net
+  web:
+    name: web
     driver: bridge
   default:
     external: true
-    name: david_net
+    name: web
