@@ -3,21 +3,42 @@ version: '3.7'
 services:
   traefik:
     container_name: ${COMPOSE_PROJECT_NAME}_traefik
-    image: traefik:v2.5
+    image: traefik:${TRAEFIK_VERSION}
     restart: always
     command:
-      - --api.insecure=true 
-      - --api.dashboard=true
+      - --api
+      - --api.insecure=${TRAEFIK_DASHBOARD_INSECURE} 
+      - --api.dashboard=${TRAEFIK_DASHBOARD}
       - --providers.docker=true
+      - --providers.docker.exposedByDefault=${TRAEFIK_EXPOSED_DEFAULT}
       - --providers.docker.network=${NETWORK_NAME}
       - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.le.acme.email=${CERT_MAIL}
+      - --certificatesresolvers.le.acme.storage=acme.json
+      - --certificatesresolvers.le.acme.tlschallenge=true
     networks: 
       - web
     ports:
       - 80:80
-      - 8080:8080
+      - 443:443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./acme.json:/acme.json
+    labels:
+      traefik.enable: true
+      traefik.http.routers.traefik.rule: Host(`traefik.${DOMAIN_NAME}`)
+      traefik.http.routers.traefik.entrypoints: websecure
+      traefik.http.routers.traefik.service: api@internal
+      traefik.http.routers.traefik.tls: true
+      traefik.http.routers.traefik.tls.certresolver: le
+      # global redirect to https
+      traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
+      traefik.http.routers.http-catchall.entrypoints: web
+      traefik.http.routers.http-catchall.middlewares: redirect-to-https
+      # middleware redirect
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
+
 
 networks:
   web:
