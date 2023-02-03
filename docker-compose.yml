@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 
 services:
   traefik:
@@ -33,9 +33,9 @@ services:
       traefik.http.routers.traefik.tls: true
       traefik.http.routers.traefik.tls.certresolver: le
       # global redirect to https
-      traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
-      traefik.http.routers.http-catchall.entrypoints: web
-      traefik.http.routers.http-catchall.middlewares: redirect-to-https
+      # traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
+      # traefik.http.routers.http-catchall.entrypoints: web
+      # traefik.http.routers.http-catchall.middlewares: redirect-to-https
       # middleware redirect
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
 
